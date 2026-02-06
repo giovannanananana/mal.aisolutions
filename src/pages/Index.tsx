@@ -8,6 +8,7 @@ import Services from '@/components/Services';
 import Stats from '@/components/Stats';
 import ReviewCarousel from '@/components/ReviewCarousel';
 import Contact from '@/components/Contact';
+import OrderEngine from '@/components/OrderEngine';
 import Footer from '@/components/Footer';
 import AwarenessPopup from '@/components/AwarenessPopup';
 
@@ -49,6 +50,7 @@ const Index = () => {
         <Services />
         <Stats />
         <ReviewCarousel />
+        <OrderEngine />
         <Contact />
       </main>
 

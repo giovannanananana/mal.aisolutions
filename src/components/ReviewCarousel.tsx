@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import { Star } from 'lucide-react';
 
 const reviews = [
@@ -42,7 +43,80 @@ const reviews = [
 
 const ReviewCarousel = () => {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!trackRef.current) return;
+
+    const track = trackRef.current;
+    const cards = track.querySelectorAll('.review-card');
+    const cardWidth = 320 + 24; // card width + gap
+    const totalWidth = cardWidth * reviews.length;
+
+    // Set up the seamless loop
+    gsap.set(track, { x: 0 });
+
+    // Create the infinite tween
+    tweenRef.current = gsap.to(track, {
+      x: -totalWidth,
+      duration: 30,
+      ease: 'none',
+      repeat: -1,
+      modifiers: {
+        x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+      },
+    });
+
+    return () => {
+      tweenRef.current?.kill();
+    };
+  }, []);
+
+  const handleMouseEnter = (index: number) => {
+    setHoveredIndex(index);
+    // Slow down the carousel to 0.2x speed
+    if (tweenRef.current) {
+      gsap.to(tweenRef.current, {
+        timeScale: 0.2,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+    // Return to normal speed
+    if (tweenRef.current) {
+      gsap.to(tweenRef.current, {
+        timeScale: 1,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    }
+  };
+
+  const handleCardHoverEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, {
+      scale: 1.05,
+      boxShadow: '0 0 40px hsl(var(--crimson) / 0.3)',
+      duration: 0.4,
+      ease: 'power2.out',
+    });
+  };
+
+  const handleCardHoverLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    gsap.to(e.currentTarget, {
+      scale: 1,
+      boxShadow: '0 0 0px transparent',
+      duration: 0.4,
+      ease: 'power2.out',
+    });
+  };
+
+  // Duplicate reviews for seamless loop
+  const duplicatedReviews = [...reviews, ...reviews, ...reviews];
 
   return (
     <section id="reviews" className="py-24 overflow-hidden">
@@ -57,24 +131,36 @@ const ReviewCarousel = () => {
 
       <div
         className="relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => {
+          if (tweenRef.current) {
+            gsap.to(tweenRef.current, {
+              timeScale: 0.2,
+              duration: 0.5,
+              ease: 'power2.out',
+            });
+          }
+        }}
+        onMouseLeave={() => {
+          if (tweenRef.current) {
+            gsap.to(tweenRef.current, {
+              timeScale: 1,
+              duration: 0.5,
+              ease: 'power2.out',
+            });
+          }
+        }}
       >
         <div
           ref={trackRef}
-          className="flex gap-6 carousel-track"
-          style={{
-            animation: `marquee ${isHovered ? '150s' : '30s'} linear infinite`,
-            width: 'max-content',
-          }}
+          className="flex gap-6 will-change-transform"
+          style={{ width: 'max-content' }}
         >
-          {/* Double the reviews for seamless loop */}
-          {[...reviews, ...reviews].map((review, index) => (
+          {duplicatedReviews.map((review, index) => (
             <div
               key={index}
-              className={`flex-shrink-0 w-80 surface-card p-8 transition-all duration-500 ${
-                isHovered ? 'glow-hover' : ''
-              }`}
+              className="review-card flex-shrink-0 w-80 surface-card p-8 will-change-transform"
+              onMouseEnter={handleCardHoverEnter}
+              onMouseLeave={handleCardHoverLeave}
             >
               {/* Stars */}
               <div className="flex gap-1 mb-4">
