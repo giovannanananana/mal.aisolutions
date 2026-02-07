@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ArrowRight } from 'lucide-react';
+import { useOrder } from './OrderContext';
 
 const phrases = [
   'Create Your Own Website.',
@@ -15,6 +16,7 @@ const Hero = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { openOrder } = useOrder();
 
   useEffect(() => {
     const typeSpeed = isDeleting ? 30 : 70;
@@ -88,10 +90,10 @@ const Hero = () => {
 
         {/* CTA Buttons */}
         <div className="reveal-item flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="mailto:mal.aisolution@gmail.com" className="btn-primary flex items-center gap-2">
+          <button onClick={openOrder} className="btn-primary flex items-center gap-2">
             Start Your Project
             <ArrowRight size={18} />
-          </a>
+          </button>
           <a href="#services" className="btn-secondary">
             Explore Services
           </a>

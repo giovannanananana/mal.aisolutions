@@ -11,10 +11,11 @@ import Contact from '@/components/Contact';
 import OrderEngine from '@/components/OrderEngine';
 import Footer from '@/components/Footer';
 import AwarenessPopup from '@/components/AwarenessPopup';
+import { OrderProvider } from '@/components/OrderContext';
+import OrderDialog from '@/components/OrderDialog';
 
 const Index = () => {
   useEffect(() => {
-    // Initialize Lenis smooth scroll
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -36,30 +37,35 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background with Parallax */}
-      <Background />
+    <OrderProvider>
+      <div className="relative min-h-screen">
+        {/* Background with Parallax */}
+        <Background />
 
-      {/* Navigation */}
-      <Navbar />
-      <MobileNav />
+        {/* Navigation */}
+        <Navbar />
+        <MobileNav />
 
-      {/* Main Content */}
-      <main>
-        <Hero />
-        <Services />
-        <Stats />
-        <ReviewCarousel />
-        <OrderEngine />
-        <Contact />
-      </main>
+        {/* Main Content */}
+        <main>
+          <Hero />
+          <Services />
+          <Stats />
+          <ReviewCarousel />
+          <OrderEngine />
+          <Contact />
+        </main>
 
-      {/* Footer */}
-      <Footer />
+        {/* Footer */}
+        <Footer />
 
-      {/* Awareness Popup */}
-      <AwarenessPopup />
-    </div>
+        {/* Awareness Popup */}
+        <AwarenessPopup />
+
+        {/* Order Dialog */}
+        <OrderDialog />
+      </div>
+    </OrderProvider>
   );
 };
 
