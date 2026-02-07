@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { X, Zap } from 'lucide-react';
+import { useOrder } from './OrderContext';
 
 const AwarenessPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const { openOrder } = useOrder();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,12 +62,12 @@ const AwarenessPopup = () => {
             </p>
 
             {/* CTA */}
-            <a
-              href="mailto:mal.aisolution@gmail.com"
+            <button
+              onClick={openOrder}
               className="inline-block mt-3 text-xs text-crimson font-medium hover:underline"
             >
-              Contact Us →
-            </a>
+              Start a Project →
+            </button>
           </div>
         </div>
       </div>

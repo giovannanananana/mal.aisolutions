@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Menu, X } from 'lucide-react';
+import { useOrder } from './OrderContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,7 @@ const navLinks = [
 const Navbar = () => {
   const navRef = useRef<HTMLElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { openOrder } = useOrder();
 
   useEffect(() => {
     if (!navRef.current) return;
@@ -61,12 +63,12 @@ const Navbar = () => {
         </div>
 
         {/* CTA Button */}
-        <a
-          href="mailto:mal.aisolution@gmail.com"
+        <button
+          onClick={openOrder}
           className="hidden md:block btn-primary text-sm"
         >
           Get Started
-        </a>
+        </button>
 
         {/* Mobile Menu Toggle */}
         <button
@@ -90,12 +92,12 @@ const Navbar = () => {
                 {link.label}
               </button>
             ))}
-            <a
-              href="mailto:mal.aisolution@gmail.com"
-              className="btn-primary text-center text-sm mt-2"
+            <button
+              onClick={() => { setIsMenuOpen(false); openOrder(); }}
+              className="btn-primary text-center text-sm mt-2 w-full"
             >
               Get Started
-            </a>
+            </button>
           </div>
         </div>
       )}
