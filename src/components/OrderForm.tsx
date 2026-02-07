@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Globe, Bot, Layout, Palette, Check, ArrowRight, MessageCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const services = [
   { id: 'website', label: 'Website', icon: Globe },
@@ -21,6 +23,7 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ onSubmitSuccess }: OrderFormProps) => {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
@@ -63,27 +66,39 @@ const OrderForm = ({ onSubmitSuccess }: OrderFormProps) => {
     if (!formData.name || !formData.email) return;
     setIsSubmitting(true);
 
-    const subject = encodeURIComponent(
-      `New Project Inquiry - ${services.find((s) => s.id === selectedService)?.label}`
-    );
-    const body = encodeURIComponent(
-      `Service: ${services.find((s) => s.id === selectedService)?.label}\n` +
-        `Budget: ${budgets.find((b) => b.id === selectedBudget)?.label}\n` +
-        `Name: ${formData.name}\n` +
-        `Email: ${formData.email}\n\n` +
-        `Project Details:\n${formData.details}`
-    );
+    try {
+      const { data, error } = await supabase.functions.invoke('send-order-email', {
+        body: {
+          service: services.find((s) => s.id === selectedService)?.label || '',
+          budget: budgets.find((b) => b.id === selectedBudget)?.label || '',
+          name: formData.name,
+          email: formData.email,
+          details: formData.details,
+        },
+      });
 
-    window.location.href = `mailto:mal.aisolution@gmail.com?subject=${subject}&body=${body}`;
+      if (error) throw error;
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      toast({
+        title: '✅ Order Submitted!',
+        description: 'Your project inquiry has been sent successfully. We will get back to you soon!',
+      });
+
       setCurrentStep(1);
       setSelectedService(null);
       setSelectedBudget(null);
       setFormData({ name: '', email: '', details: '' });
       onSubmitSuccess?.();
-    }, 1000);
+    } catch (error: any) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send your inquiry. Please try again or contact us via WhatsApp.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCardHover = (e: React.MouseEvent<HTMLDivElement>, isEntering: boolean) => {
